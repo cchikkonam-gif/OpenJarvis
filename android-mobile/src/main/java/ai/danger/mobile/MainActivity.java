@@ -47,6 +47,7 @@ public class MainActivity extends Activity {
         root=column();root.setBackgroundColor(bg);root.setPadding(dp(16),dp(12),dp(16),dp(12));
         setContentView(root);
         root.setOnApplyWindowInsetsListener((v,in)->{
+            if(Build.VERSION.SDK_INT<30)return in;
             android.graphics.Insets bars=in.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.ime());
             v.setPadding(dp(16)+bars.left,dp(12)+bars.top,dp(16)+bars.right,dp(12)+bars.bottom);return in;
         });
