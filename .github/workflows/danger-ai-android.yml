@@ -1,0 +1,34 @@
+name: DANGER AI Android APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'android-mobile/**'
+      - '.github/workflows/danger-ai-android.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - run: gradle --no-daemon -p android-mobile assembleDebug lintDebug
+      - run: |
+          mkdir -p apk
+          cp android-mobile/build/outputs/apk/debug/android-mobile-debug.apk apk/DANGER-AI.apk || cp android-mobile/build/outputs/apk/debug/*-debug.apk apk/DANGER-AI.apk
+          sha256sum apk/DANGER-AI.apk > apk/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DANGER-AI-APK
+          path: apk/
+          if-no-files-found: error
